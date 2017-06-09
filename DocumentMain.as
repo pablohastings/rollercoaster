@@ -1,10 +1,10 @@
-﻿package {	import flash.display.MovieClip;	import flash.events.TimerEvent;	import flash.utils.Timer;	import MainTimer;	import flash.events.Event;	import flash.ui.Keyboard;	import flash.events.KeyboardEvent;	import flash.sensors.Accelerometer;	import flash.events.AccelerometerEvent;
-	import flash.events.AccelerometerEvent;	import flash.events.MouseEvent;	import flash.system.Capabilities;
+﻿package {	import flash.display.MovieClip;	import flash.events.TimerEvent;	import flash.utils.Timer;	import MainTimer;	import flash.events.Event;	import flash.ui.Keyboard;	import flash.events.KeyboardEvent;	//import flash.sensors.Accelerometer;	//import flash.events.AccelerometerEvent;
+	//import flash.events.AccelerometerEvent;	import flash.events.MouseEvent;	import flash.system.Capabilities;
 	import flash.geom.Point;	public class DocumentMain extends MovieClip	{		//initial variables		private var currentNumberOfEnemiesOnstage:int;		private var initialNumberOfEnemiesToCreate:int = 2;		private var maxNumberOfEnemiesOnstage:int = 2;		private var tiltValueFromAcc:Number = 0;		private var numChildrenInBoundaries:int;		private var ninjaKills:int;		private var childToRemove:int;		private var level:int = 1;		private var e:int = 0;		private var minute:int = 0;		private var second:int = 59;		private var gameTimer:MainTimer;		private var childrenOnStage:int;		private var lastX:int;// variable to determine where the last x of the player was.
 		private var theCart:Cart;
 				private var thePlayer:Player;
 		private var theCart1:Player;
-				private var theEnemy:Enemy;		private var doesTheWorldNeedToScroll:Boolean;		private var isMobileDevice:Boolean;		private var makeNewEnemyTimer:Timer = new Timer(3000,1);		private var finishOffEnemy:Timer = new Timer(500,1);		private var theAcc:Accelerometer =  new Accelerometer();				private var theSoundLibrary:SoundLibrary = new SoundLibrary();
+				private var theEnemy:Enemy;		private var doesTheWorldNeedToScroll:Boolean;		private var isMobileDevice:Boolean;		private var makeNewEnemyTimer:Timer = new Timer(3000,1);		private var finishOffEnemy:Timer = new Timer(500,1);		//private var theAcc:Accelerometer =  new Accelerometer();				private var theSoundLibrary:SoundLibrary = new SoundLibrary();
 		
 		private var trackState:String;
 		private var isOnTrack:Boolean;
@@ -16,7 +16,8 @@
 	
 		public function DocumentMain()		{			// constructor code						trace("document main initiated");			//paul edit			//makeNewEnemyTimer.addEventListener(TimerEvent.TIMER_COMPLETE,makeNewEnemyHandler);			//makeNewEnemyTimer.start();			gameTimer = new MainTimer(minute,second);			addChild(gameTimer);			gameTimer.x = 60;			gameTimer.y = -400;			thePlayer = new Player();			addChild(thePlayer);			thePlayer.x = stage.stageWidth * 0.5;// halfway across the stage			thePlayer.y = 180;			thePlayer.name = "player";
 			theCart1 = new Player();
-			addChild(theCart1);					/* PAUL EDIT			while (e < initialNumberOfEnemiesToCreate)			{				createEnemy();				e++;			}			*/
+			addChild(theCart1);
+			theCart1.name = 'cart1';					/* PAUL EDIT			while (e < initialNumberOfEnemiesToCreate)			{				createEnemy();				e++;			}			*/
 						ninjaKills = 0;			lastX = thePlayer.x;			childrenOnStage = this.numChildren;//make sure you assign this value after adding children			this.addEventListener(Event.ENTER_FRAME,mainGameLoop);			stage.focus = stage;			/// chooses between using the Accelerometer or the Keyboard for controls...						stage.addEventListener(KeyboardEvent.KEY_DOWN,keyDownHandler);			stage.addEventListener(KeyboardEvent.KEY_UP,keyUpHandler);			isMobileDevice = false;		}		private function makePlayerJump():void		{
 			
 			//trace("");
@@ -33,18 +34,20 @@
 										//thePlayer.startJumping();					makePlayerJump();
 									break;				case 39 ://right					//thePlayer.moveRight();					break;				case 40 ://down to attack					//thePlayer.attack();										break;			}		}		private function keyUpHandler(e:KeyboardEvent):void		{			switch (e.keyCode)			{				case 37 ://left				case 39 ://right					break;				case 40 ://down to attack					//as a reminder, you COULD do something when you finish attacking.					break;				default :					//anything			}		}		private function mainGameLoop(event:Event):void		{
 			thePlayer.moveRight();
-						gameResets();			removeOrCreateNewEnemies();			processCollisions();
-			processTrackSection();
-						scrollStage();			// ends  mainGameLoop		}		private function createEnemy():void		{			theEnemy = new Enemy( (Math.random() * 5 ) + 1  )  ;			addChild(theEnemy);			theEnemy.x = Math.random() * stage.stageWidth + stage.stageWidth / 2;// anywhere across the stage			theEnemy.y = 0;			theEnemy.name = "enemy";			childrenOnStage = this.numChildren;		}		private function removeOrCreateNewEnemies():void		{			for (var c:int = 0; c < childrenOnStage; c++)			{				if (getChildAt(c).name == "enemy" && getChildAt(c).y > stage.stageHeight)				{					removeChildAt(c);					createEnemy();				}				if (getChildAt(c).name == "enemy" && getChildAt(c).x < thePlayer.x - stage.stageWidth)				{					removeChildAt(c);					createEnemy();				}			}		}		private function makeNewEnemyHandler(event:TimerEvent):void		{			currentNumberOfEnemiesOnstage = 0;			for (var c:int = 0; c < childrenOnStage; c++)			{				if (getChildAt(c).name == "enemy")				{					currentNumberOfEnemiesOnstage++;				}			}			if (currentNumberOfEnemiesOnstage < maxNumberOfEnemiesOnstage)			{				trace("not enough enemies onstage, make more");				createEnemy();			}			makeNewEnemyTimer.start();		}		public function finishOffEnemyComplete(event:TimerEvent):void		{			ninjaKills++;			killScoreBox.text = String(ninjaKills) + " KILLS";			removeChildAt( childToRemove);			childrenOnStage = this.numChildren;		}		
+						gameResets();			removeOrCreateNewEnemies();			
+		
+			processTrackSection();			processCollisions();
+			
+						scrollStage();						// ends  mainGameLoop		}		private function createEnemy():void		{			theEnemy = new Enemy( (Math.random() * 5 ) + 1  )  ;			addChild(theEnemy);			theEnemy.x = Math.random() * stage.stageWidth + stage.stageWidth / 2;// anywhere across the stage			theEnemy.y = 0;			theEnemy.name = "enemy";			childrenOnStage = this.numChildren;		}		private function removeOrCreateNewEnemies():void		{			for (var c:int = 0; c < childrenOnStage; c++)			{				if (getChildAt(c).name == "enemy" && getChildAt(c).y > stage.stageHeight)				{					removeChildAt(c);					createEnemy();				}				if (getChildAt(c).name == "enemy" && getChildAt(c).x < thePlayer.x - stage.stageWidth)				{					removeChildAt(c);					createEnemy();				}			}		}		private function makeNewEnemyHandler(event:TimerEvent):void		{			currentNumberOfEnemiesOnstage = 0;			for (var c:int = 0; c < childrenOnStage; c++)			{				if (getChildAt(c).name == "enemy")				{					currentNumberOfEnemiesOnstage++;				}			}			if (currentNumberOfEnemiesOnstage < maxNumberOfEnemiesOnstage)			{				trace("not enough enemies onstage, make more");				createEnemy();			}			makeNewEnemyTimer.start();		}		public function finishOffEnemyComplete(event:TimerEvent):void		{			ninjaKills++;			killScoreBox.text = String(ninjaKills) + " KILLS";			removeChildAt( childToRemove);			childrenOnStage = this.numChildren;		}		
 		private function processTrackSection():void
 		{
-			trackState = '';
+			thePlayer.playerTrackState = '';
 			
 			if(_boundaries.bg.flat){
 				if (thePlayer.hitTestObject(_boundaries.bg.flat))
 				  {
 					  //trace("on flat::::::::::::::::::::::::::");
-					  trackState = 'flat';
+					  thePlayer.playerTrackState = 'flat';
 				  }
 			}
 			
@@ -52,7 +55,7 @@
 				if (thePlayer.hitTestObject(_boundaries.bg.up12))
 				  {
 					  //trace("on up12::::::::::::::::::::::::::");
-					  trackState = 'up12';
+					  thePlayer.playerTrackState = 'up12';
 				  }
 			}
 			
@@ -60,7 +63,7 @@
 				if (thePlayer.hitTestObject(_boundaries.bg.up20))
 				  {
 					  //trace("on up12::::::::::::::::::::::::::");
-					  trackState = 'up20';
+					  thePlayer.playerTrackState = 'up20';
 				  }
 			}
 			
@@ -75,13 +78,13 @@
 			
 						for (var c:int = 0; c < childrenOnStage; c++)			{								if (getChildAt(c).name == "player")				{				
 					//calculate slope for player
-					if(thePlayer.isDirection == "flat"){
+					if(thePlayer.isDirection == "flat" || thePlayer.playerTrackState == 'flat'){
 						thePlayer.rotation = 0;
 						
 					//these are fixed angles.  figure out way to make dynamic
-					} else if (trackState == 'up12'){
+					} else if (thePlayer.playerTrackState == 'up12'){
 						thePlayer.rotation = -12;
-					} else if (trackState == 'up20'){
+					} else if (thePlayer.playerTrackState == 'up20'){
 						thePlayer.rotation = -20;
 					} else {
 						//rc on a curved section.  rotate rc
@@ -143,8 +146,10 @@
 			yPosArray.length = 0;
 			xPosArray.length = 0;
 			rotatePosArray.length = 0; 
-								ninjaKills = 0;			gameTimer.resetTimer(0,40);		}		private function scrollStage():void		{			if (thePlayer.x != lastX)			{				doesTheWorldNeedToScroll = true;			}			else if (thePlayer.x == lastX)			{				doesTheWorldNeedToScroll = false;			}			if (doesTheWorldNeedToScroll == true)			{				var speed = .499;								sky.x +=  stage.stageWidth * .5 - thePlayer.x * 1.002;//1.002				for (var b:int = 0; b < childrenOnStage; b++)				{					if (getChildAt(b).name == "enemy")					{						getChildAt(b).x +=  stage.stageWidth * .5 - thePlayer.x;					}				}				_boundaries.x +=  stage.stageWidth * .5 - thePlayer.x;			}			else			{				sky.x -=  0.5;			}			// RUN THIS FOLLOWING LINE LAST			thePlayer.x = stage.stageWidth * 0.5;			lastX = thePlayer.x;
+								ninjaKills = 0;			gameTimer.resetTimer(0,40);		}		private function scrollStage():void		{
 			
+			
+					if (thePlayer.x != lastX)			{				doesTheWorldNeedToScroll = true;			}			else if (thePlayer.x == lastX)			{				doesTheWorldNeedToScroll = false;			}			if (doesTheWorldNeedToScroll == true)			{				var speed = .499;								sky.x +=  stage.stageWidth * .5 - thePlayer.x * 1.002;//1.002				for (var b:int = 0; b < childrenOnStage; b++)				{					if (getChildAt(b).name == "enemy")					{						getChildAt(b).x +=  stage.stageWidth * .5 - thePlayer.x;					}				}				_boundaries.x +=  stage.stageWidth * .5 - thePlayer.x;			}			else			{				sky.x -=  0.5;			}			// RUN THIS FOLLOWING LINE LAST			thePlayer.x = stage.stageWidth * 0.5;			lastX = thePlayer.x;
 			
 			postionCart();
 			
